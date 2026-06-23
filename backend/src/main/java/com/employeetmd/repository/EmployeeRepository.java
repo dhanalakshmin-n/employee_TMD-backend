@@ -13,6 +13,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Optional<Employee> findByEmail(String email);
 
+    Optional<Employee> findByEmailIgnoreCase(String email);
+
     boolean existsByEmail(String email);
 
     Page<Employee> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
