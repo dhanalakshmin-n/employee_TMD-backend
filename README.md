@@ -178,11 +178,11 @@ _Coming soon._
 
 ---
 
-## Mock Login (Frontend)
+## Mock Login
 
-| Role | Email |
-|------|-------|
-| Manager | `manager@test.com` |
-| Employee | `employee@test.com` |
+| Role | How to log in |
+|------|---------------|
+| Manager | `manager@test.com` (hardcoded) |
+| Employee | Any email that exists in the `employees` table (e.g. `employee@test.com`, `sarah@company.com`) |
 
-No password required. Role is stored in browser local storage.
+No password required. Role is returned from `POST /api/auth/login` and stored in browser local storage.
