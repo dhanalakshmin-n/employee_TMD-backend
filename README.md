@@ -10,179 +10,204 @@ A full-stack task management dashboard where managers create and assign tasks to
 | Database | PostgreSQL |
 | Frontend | React (coming soon) |
 
+**Base URL:** `http://localhost:8080`
+
+All API responses use a common wrapper:
+
+```json
+{
+  "success": true,
+  "message": "Operation message",
+  "data": { }
+}
+```
+
 ---
 
 ## Setup Instructions
 
 ### Prerequisites
 
-Install the following before running the project:
+| Tool | Version |
+|------|---------|
+| Java JDK | 17 |
+| Maven | 3.8+ |
+| PostgreSQL | 14+ |
 
-| Tool | Version | Check |
-|------|---------|-------|
-| Java JDK | 17 | `java -version` |
-| Maven | 3.8+ | `mvn -version` |
-| PostgreSQL | 14+ | `psql --version` |
-
-> **Note:** Spring Boot 3.x requires **Java 17 or higher**. Ensure your IDE run configuration and `JAVA_HOME` point to JDK 17.
-
----
-
-### 1. Clone the repository
-
-```bash
-git clone <repository-url>
-cd Employee-TMD
-```
-
----
-
-### 2. Set up PostgreSQL
-
-1. Start the PostgreSQL service on your machine.
-2. Create the database:
+### 1. Create database
 
 ```sql
 CREATE DATABASE employee_tmd;
 ```
 
-3. Confirm you can connect (default user is often `postgres`):
+### 2. Configure database
 
-```bash
-psql -U postgres -d employee_tmd
-```
+Edit [`backend/src/main/resources/application.properties`](backend/src/main/resources/application.properties) or set env vars in your IDE run config:
 
----
-
-### 3. Configure database credentials
-
-Database settings live in [`backend/src/main/resources/application.properties`](backend/src/main/resources/application.properties):
-
-```properties
-spring.datasource.url=${DATABASE_URL:jdbc:postgresql://localhost:5432/employee_tmd}
-spring.datasource.username=${DB_USERNAME:postgres}
-spring.datasource.password=${DB_PASSWORD:postgres}
-```
-
-**Option A — Edit defaults in `application.properties`** (simplest for local dev)
-
-Change `postgres` / password to match your local Postgres setup.
-
-**Option B — Environment variables via IDE run config** (recommended)
-
-In your IDE run configuration for `EmployeeTmdApplication`, add:
-
-| Variable | Example value |
-|----------|---------------|
+| Variable | Example |
+|----------|---------|
 | `DATABASE_URL` | `jdbc:postgresql://localhost:5432/employee_tmd` |
 | `DB_USERNAME` | `postgres` |
 | `DB_PASSWORD` | `your_password` |
 
-**Option C — Terminal (PowerShell)**
-
-```powershell
-$env:DATABASE_URL="jdbc:postgresql://localhost:5432/employee_tmd"
-$env:DB_USERNAME="postgres"
-$env:DB_PASSWORD="your_password"
-```
-
----
-
-### 4. Configure Java 17 in your IDE
-
-**IntelliJ / Cursor (Java)**
-
-1. Install JDK 17 (e.g. [Eclipse Temurin 17](https://adoptium.net/)).
-2. Set **Project SDK** and **Run Configuration JRE** to Java 17.
-3. VS Code / Cursor: `Ctrl+Shift+P` → **Java: Configure Java Runtime** → add JDK 17 as default.
-
-Verify:
-
-```bash
-java -version    # should show 17.x.x
-mvn -version     # should show Java version: 17
-```
-
----
-
-### 5. Run the backend
+### 3. Run backend
 
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-Or run `EmployeeTmdApplication.java` directly from your IDE.
-
-The API starts at: **http://localhost:8080**
-
-On first run, JPA auto-creates tables (`employees`, `tasks`) from entity classes (`ddl-auto=update`).
-
----
-
-### 6. Verify the server is running
-
-Check the console for:
-
-```
-Started EmployeeTmdApplication in X.XXX seconds
-```
-
-If you see a database connection error:
-
-| Error | Fix |
-|-------|-----|
-| `database "employee_tmd" does not exist` | Run `CREATE DATABASE employee_tmd;` |
-| `password authentication failed` | Fix `DB_PASSWORD` in run config or properties |
-| `release version 17 not supported` | Switch IDE / Maven to JDK 17 |
-
----
-
-## Project Structure (Backend)
-
-```
-backend/
-├── pom.xml
-├── src/main/java/com/employeetmd/
-│   ├── EmployeeTmdApplication.java   # Entry point
-│   ├── enums/                        # Priority, TaskStatus
-│   ├── entity/                       # Employee, Task (coming soon)
-│   ├── repository/
-│   ├── service/
-│   ├── controller/
-│   └── dto/
-└── src/main/resources/
-    └── application.properties
-```
-
----
-
-## API Documentation
-
-_Coming soon — endpoints will be documented here as they are implemented._
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/employees` | List employees |
-| POST | `/api/employees` | Create employee |
-| GET | `/api/tasks` | List tasks |
-| POST | `/api/tasks` | Create task |
-| PATCH | `/api/tasks/{id}/status` | Update task status |
-| GET | `/api/dashboard/stats` | Dashboard metrics |
-
----
-
-## Screenshots
-
-_Coming soon._
+Tables are auto-created on startup. Sample employees and tasks are seeded from `data.sql`.
 
 ---
 
 ## Mock Login
 
-| Role | How to log in |
-|------|---------------|
+| Role | Email |
+|------|-------|
 | Manager | `manager@test.com` (hardcoded) |
-| Employee | Any email that exists in the `employees` table (e.g. `employee@test.com`, `sarah@company.com`) |
+| Employee | Any email in the `employees` table (e.g. `employee@test.com`) |
 
-No password required. Role is returned from `POST /api/auth/login` and stored in browser local storage.
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{ "email": "manager@test.com" }
+```
+
+No password required.
+
+---
+
+## API Documentation
+
+### Auth
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Login with email, returns role + employee info |
+
+**Response `data`:**
+```json
+{
+  "email": "employee@test.com",
+  "role": "EMPLOYEE",
+  "employeeId": 1,
+  "name": "John Doe"
+}
+```
+
+---
+
+### Employees
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/employees` | List employees (search, pagination, sort) |
+| GET | `/api/employees/options` | Dropdown list (`id`, `name`) for task assignee |
+| GET | `/api/employees/{id}` | Get employee by id |
+| POST | `/api/employees` | Create employee |
+| PUT | `/api/employees/{id}` | Update employee |
+| DELETE | `/api/employees/{id}` | Delete employee (blocked if tasks assigned) |
+
+**Query params (list):** `search`, `page`, `size`, `sort` (e.g. `sort=name,asc`)
+
+**Create / update body:**
+```json
+{
+  "name": "John Doe",
+  "email": "john@company.com",
+  "department": "Engineering"
+}
+```
+
+---
+
+### Tasks
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/tasks` | List tasks (filters, search, pagination, sort) |
+| GET | `/api/tasks/{id}` | Get task details |
+| POST | `/api/tasks` | Create task |
+| PUT | `/api/tasks/{id}` | Update / reassign task |
+| DELETE | `/api/tasks/{id}` | Delete task |
+| PATCH | `/api/tasks/{id}/status` | Update task status (employee) |
+
+**Query params (list):** `assignedEmployeeId`, `status`, `priority`, `search`, `page`, `size`, `sort`
+
+**Create / update body:**
+```json
+{
+  "title": "Fix login bug",
+  "description": "Resolve mobile auth issue",
+  "priority": "HIGH",
+  "dueDate": "2026-12-01",
+  "assignedEmployeeId": 1
+}
+```
+
+**Status update body:**
+```json
+{ "status": "IN_PROGRESS" }
+```
+
+Status values: `PENDING`, `IN_PROGRESS`, `COMPLETED`  
+Priority values: `LOW`, `MEDIUM`, `HIGH`
+
+---
+
+### Dashboard
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/dashboard/stats` | Manager dashboard metrics + chart data |
+
+**Response `data`:**
+```json
+{
+  "totalEmployees": 3,
+  "totalTasks": 4,
+  "pendingTasks": 2,
+  "completedTasks": 1,
+  "statusDistribution": {
+    "PENDING": 2,
+    "IN_PROGRESS": 1,
+    "COMPLETED": 1
+  }
+}
+```
+
+---
+
+## Quick Test (curl)
+
+```bash
+curl http://localhost:8080/api/dashboard/stats
+curl http://localhost:8080/api/employees
+curl http://localhost:8080/api/tasks?assignedEmployeeId=1
+curl -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d "{\"email\":\"manager@test.com\"}"
+```
+
+---
+
+## Project Structure
+
+```
+Employee-TMD/
+├── backend/          # Spring Boot API
+│   └── src/main/java/com/employeetmd/
+│       ├── controller/   # Auth, Employee, Task, Dashboard
+│       ├── service/
+│       ├── repository/
+│       ├── entity/
+│       ├── dto/
+│       └── enums/
+└── README.md
+```
+
+---
+
+## Screenshots
+
+_Coming soon — frontend UI screenshots will be added here._
