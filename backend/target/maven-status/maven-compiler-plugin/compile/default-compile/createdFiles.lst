@@ -8,6 +8,8 @@ com\employeetmd\service\TaskService.class
 com\employeetmd\dto\EmployeeResponse$EmployeeResponseBuilder.class
 com\employeetmd\dto\DashboardStatsResponse$DashboardStatsResponseBuilder.class
 com\employeetmd\controller\TaskController.class
+com\employeetmd\dto\EmployeeDashboardStatsResponse$EmployeeDashboardStatsResponseBuilder.class
+com\employeetmd\dto\EmployeeDashboardStatsResponse.class
 com\employeetmd\service\EmployeeService.class
 com\employeetmd\dto\DashboardStatsResponse.class
 com\employeetmd\dto\TaskStatusUpdateRequest.class

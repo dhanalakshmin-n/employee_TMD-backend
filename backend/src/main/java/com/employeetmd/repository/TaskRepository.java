@@ -14,5 +14,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
 
     long countByAssignedEmployeeId(Long employeeId);
 
+    long countByAssignedEmployeeIdAndStatus(Long assignedEmployeeId, TaskStatus status);
+
     boolean existsByAssignedEmployeeId(Long employeeId);
 }
