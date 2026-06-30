@@ -1,14 +1,14 @@
 package com.employeetmd.service;
 
 import com.employeetmd.dto.DashboardStatsResponse;
-import com.employeetmd.dto.EmployeeDashboardStatsResponse;
 import com.employeetmd.enums.TaskStatus;
-import com.employeetmd.exception.ResourceNotFoundException;
 import com.employeetmd.repository.EmployeeRepository;
 import com.employeetmd.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.employeetmd.dto.EmployeeDashboardStatsResponse;
+import com.employeetmd.exception.ResourceNotFoundException;
 
 import java.util.Map;
 
@@ -40,23 +40,23 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public EmployeeDashboardStatsResponse getEmployeeStats(Long employeeId) {
-        if (!employeeRepository.existsById(employeeId)) {
-            throw new ResourceNotFoundException("Employee not found with id: " + employeeId);
-        }
-
-        long pending = taskRepository.countByAssignedEmployeeIdAndStatus(employeeId, TaskStatus.PENDING);
-        long inProgress = taskRepository.countByAssignedEmployeeIdAndStatus(employeeId, TaskStatus.IN_PROGRESS);
-        long completed = taskRepository.countByAssignedEmployeeIdAndStatus(employeeId, TaskStatus.COMPLETED);
-
-        return EmployeeDashboardStatsResponse.builder()
-                .totalTasks(taskRepository.countByAssignedEmployeeId(employeeId))
-                .pendingTasks(pending)
-                .completedTasks(completed)
-                .statusDistribution(Map.of(
-                        "PENDING", pending,
-                        "IN_PROGRESS", inProgress,
-                        "COMPLETED", completed
-                ))
-                .build();
+    if (!employeeRepository.existsById(employeeId)) {
+        throw new ResourceNotFoundException("Employee not found with id: " + employeeId);
     }
+
+    long pending = taskRepository.countByAssignedEmployeeIdAndStatus(employeeId, TaskStatus.PENDING);
+    long inProgress = taskRepository.countByAssignedEmployeeIdAndStatus(employeeId, TaskStatus.IN_PROGRESS);
+    long completed = taskRepository.countByAssignedEmployeeIdAndStatus(employeeId, TaskStatus.COMPLETED);
+
+    return EmployeeDashboardStatsResponse.builder()
+            .totalTasks(taskRepository.countByAssignedEmployeeId(employeeId))
+            .pendingTasks(pending)
+            .completedTasks(completed)
+            .statusDistribution(Map.of(
+                    "PENDING", pending,
+                    "IN_PROGRESS", inProgress,
+                    "COMPLETED", completed
+            ))
+            .build();
+}
 }
