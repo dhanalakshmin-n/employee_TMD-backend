@@ -1,0 +1,6 @@
+# Copy to application-local.properties and set your Supabase database password.
+# Loaded automatically when spring.profiles.active=local (default for local dev).
+
+spring.datasource.url=jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require
+spring.datasource.username=postgres.wnsiikrsxapbzbgtuiyv
+spring.datasource.password=YOUR_SUPABASE_DATABASE_PASSWORD
